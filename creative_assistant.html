@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Creative Assistant</title>
+  <link rel="stylesheet" href="style1.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Pixelify+Sans:wght@400..700&family=Playfair+Display:ital,wght@0,700;1,700&family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&family=Outfit:wght@100..900&family=Pacifico&family=Pixelify+Sans:wght@400..700&family=Playfair+Display:ital,wght@0,700;1,700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+</head>
+<body>
+  <div id="introModal" class="modal">
+    <div class="modal-content">
+      <h2>Welcome to the Creative Project Assistant!</h2>
+      <p class="center-text">This tool is designed to provide inspiration and advice for your creative projects. Whether you're creating a slogan, writing a story, designing a product, or performing data analysis, our AI assistant can provide you with customized creative solutions.</p>
+    
+      <p class="center-text"><strong>Steps to use</strong><br>
+        - Select your project type.<br>
+        - Enter project description and detailed requirements.<br>
+        - Select your preferred style.<br>
+        - Click the "Generate Idea" button. The AI assistant will generate an idea for you.</p>
+    
+      <p class="center-text">Let's start creating wonders! <br>
+      Click "Let's Go" to get started.</p>  
+      <button id="letsGoBtn">Let's Go!</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <h1>Creative Project Assistant</h1>
+    <input id="projectType" type="text" placeholder="Project Type" />
+    <div id="tips" style="display: none;">
+      <table>
+        <tr><th>Slogan</th><th>Installation</th><th>Website</th></tr>
+        <tr><td>Story</td><td>Illustration</td><td>Mobile APP</td></tr>
+        <tr><td>Script</td><td>Product</td><td>Data analysis</td></tr>
+        <tr><td>...</td><td>...</td><td>...</td></tr>
+      </table>
+    </div>
+    <input id="projectDescription" type="text" placeholder="Project Description" />
+    <input id="detailedRequirements" type="text" placeholder="Detailed Requirements" />
+    <input id="stylePreference" type="text" placeholder="Style Preference" />
+    <div id="styleTips" style="display: none;">
+      <table>
+        <tr><th>Modern</th><th>Abstract</th><th>Realistic</th><th>Minimalist</th></tr>
+        <tr><td>Vintage</td><td>Futuristic</td><td>Expressive</td><td>...</td></tr>
+      </table>
+    </div>
+    <button id="send">Generate Idea</button>
+    <p id="responseText"></p>
+  </div>
+  <script src="1_bg.js"></script>
+  <script>
+    const sendElement = document.getElementById('send');
+
+sendElement.addEventListener('click', async () => {
+  const container = document.querySelector('.container');
+  container.classList.add('limited-height');
+
+  const projectType = document.getElementById('projectType').value;
+  const projectDescription = document.getElementById('projectDescription').value;
+  const detailedRequirements = document.getElementById('detailedRequirements').value;
+  const stylePreference = document.getElementById('stylePreference').value;
+
+  const responseText = document.getElementById('responseText');
+  responseText.innerText = 'Generating...';
+
+  try {
+    const response = await fetch('/api/creative', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        projectType,
+        projectDescription,
+        detailedRequirements,
+        stylePreference
+      })
+    });
+
+    const data = await response.json();
+
+    responseText.innerText = data.initialIdea;
+  } catch (error) {
+    console.error('Error:', error);
+    responseText.innerText = 'Error generating idea. Please try again.';
+  }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  const projectTypeInput = document.getElementById('projectType');
+  const tips = document.getElementById('tips');
+  const stylePreferenceInput = document.getElementById('stylePreference');
+  const styleTips = document.getElementById('styleTips');
+
+  projectTypeInput.addEventListener('focus', function() {
+    tips.style.display = 'block';
+  });
+
+  stylePreferenceInput.addEventListener('focus', function() {
+    styleTips.style.display = 'block';
+  });
+
+  document.addEventListener('click', function(event) {
+    if (!projectTypeInput.contains(event.target) && !tips.contains(event.target)) {
+      tips.style.display = 'none';
+    }
+    if (!stylePreferenceInput.contains(event.target) && !styleTips.contains(event.target)) {
+      styleTips.style.display = 'none';
+    }
+  });
+
+  const introModal = document.getElementById('introModal');
+  introModal.style.display = 'block';
+
+  const letsGoBtn = document.getElementById('letsGoBtn');
+  letsGoBtn.addEventListener('click', function(event) {
+    event.stopPropagation();
+    introModal.style.display = 'none';
+  });
+});
+  </script>
+</body>
+</html>

@@ -1,0 +1,75 @@
+body, html {
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    width: 100vw; 
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Arial', sans-serif;
+    color: #fff; 
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.6); 
+}
+
+.menu-container {
+    font-family: "Pixelify Sans", sans-serif;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0); 
+    padding: 20px 40px;
+    margin: 20px;
+    border-radius: 15px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25); 
+    width: 70%; 
+    max-width: 300px;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+li a {
+    font-family: "Pixelify Sans", sans-serif;
+    display: block;
+    padding: 10px 20px;
+    text-decoration: none;
+    background-color: #5d00ff;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    transition: transform 0.3s ease, background-color 0.3s ease;
+    margin: 10px 0;
+}
+
+li a:focus, li a:hover {
+    transform: scale(1.05);
+    background-color: #8c00ff;
+    outline: none;  
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px #5d00ff;  
+}
+
+.description {
+    display: none; 
+    position: absolute; 
+    left: 50%; 
+    transform: translateX(-50%); 
+    bottom: -60px; 
+    background-color: #333; 
+    color: #fff; 
+    padding: 8px; 
+    border-radius: 4px; 
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.3); 
+    width: 220px; 
+    text-align: center; 
+    opacity: 0; 
+    transition: opacity 0.3s ease; 
+}
+
+li:hover .description {
+    display: block; 
+    opacity: 1; 
+}

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mix Monster</title>
+  <link rel="stylesheet" href="style4.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Pixelify+Sans:wght@400..700&family=Playfair+Display:ital,wght@0,700;1,700&family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&family=Outfit:wght@100..900&family=Pacifico&family=Pixelify+Sans:wght@400..700&family=Playfair+Display:ital,wght@0,700;1,700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+</head>
+<body>
+    <div id="introModal" class="modal">
+        <div class="modal-content">
+          <h2>Welcome to Mix Monster - Creative Idea Generator!</h2>
+          <p class="center-text">This tool will help you generate new ideas and inspiration by combining different elements. Whether you are a designer, writer, artist, or anyone in need of creativity, Mix Monster will provide you with unique and interesting ideas.</p>
+        
+          <p class="center-text"><strong>Steps to use</strong><br>
+            - Enter two different elements in the first two input boxes (e.g. "classical music" and "virtual reality").<br>
+            - If you already have an idea, enter it in the third input box (e.g. "immersive music experience").<br>
+            - Select your desired action.<br>
+            · Generate a new concept (A+B=C)<br>
+            · Find the missing element A (C-B=A) or B (C-A=B).<br>
+            - Click on the "Generate" button. The program will generate the idea or find the missing element.</p>
+        
+          <p class="center-text">Mix Monster is ready to help you!<br>
+            Click on the "Start Mixing" button and let Mix Monster breathe new life into your creative projects!</p>  
+          <button id="letsGoBtn">Start Mixing</button>
+        </div>
+      </div>
+
+  <div class="container">
+    <h1>Mix Monster</h1>
+    <input id="elementA" type="text" placeholder="First Element (e.g., Classical Music)" />
+    <input id="elementB" type="text" placeholder="Second Element (e.g., Virtual Reality)" />
+    <input id="elementC" type="text" placeholder="Resulting Concept (optional)" />
+    <select id="operation">
+      <option value="generateC">Generate C (A+B=C)</option>
+      <option value="generateA">Generate A (C-B=A)</option>
+      <option value="generateB">Generate B (C-A=B)</option>
+    </select>
+    <button id="send">Generate</button>
+    <p id="responseText"></p>
+  </div>
+  <script src="4_bg.js"></script>
+  <script defer>
+    document.addEventListener('DOMContentLoaded', () => {
+    const introModal = document.getElementById('introModal');
+    const letsGoBtn = document.getElementById('letsGoBtn');
+    const sendButton = document.getElementById('send');
+    const responseText = document.getElementById('responseText');
+
+    introModal.style.display = 'block';
+
+    letsGoBtn.addEventListener('click', () => {
+        introModal.style.display = 'none';
+    });
+
+    sendButton.addEventListener('click', async () => {
+        const container = document.querySelector('.container');
+        container.classList.add('limited-height');
+        const elementA = document.getElementById('elementA').value.trim();
+        const elementB = document.getElementById('elementB').value.trim();
+        const elementC = document.getElementById('elementC').value.trim();
+        const operation = document.getElementById('operation').value;
+
+        let apiUrl = '/api/';
+
+        switch (operation) {
+            case 'generateC':
+                apiUrl += 'generate_c';
+                break;
+            case 'generateA':
+                apiUrl += 'generate_a';
+                break;
+            case 'generateB':
+                apiUrl += 'generate_b';
+                break;
+        }
+
+        if ((operation === 'generateC' && (!elementA || !elementB)) ||
+            (operation === 'generateA' && (!elementB || !elementC)) ||
+            (operation === 'generateB' && (!elementA || !elementC))) {
+            responseText.textContent = 'Please fill in the necessary fields.';
+            responseText.style.color = 'red';
+            return;
+        }
+
+        responseText.textContent = 'Generating...';
+        responseText.style.color = 'black';
+
+        try {
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ elementA, elementB, elementC })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to fetch with status: ${response.status}`);
+            }
+            const data = await response.json();
+            const cleanText = cleanMarkdown(data.creativeIdea || data.missingElement);
+            responseText.textContent = cleanText;
+        } catch (error) {
+            console.error('Error:', error);
+            responseText.textContent = 'Error: ' + error.message;
+            responseText.style.color = 'red';
+        }
+    });
+
+    function cleanMarkdown(text) {
+        return text.replace(/(\*\*|__)(.*?)\1/g, "$2") 
+    }
+});
+</script>    
+</body>
+</html>

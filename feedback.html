@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feedback Assistant</title>
+  <link rel="stylesheet" href="style3.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Pixelify+Sans:wght@400..700&family=Playfair+Display:ital,wght@0,700;1,700&family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Merriweather:ital,wght@0,300;0,400;0,700;0,900;1,300;1,400;1,700;1,900&family=Outfit:wght@100..900&family=Pacifico&family=Pixelify+Sans:wght@400..700&family=Playfair+Display:ital,wght@0,700;1,700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+</head>
+<body>
+  <div id="introModal" class="modal">
+    <div class="modal-content">
+      <h2>Welcome to the Feedback Assistant!</h2>
+      <p class="center-text">This tool is designed to provide personalized feedback on your projects. Whether you are writing an article, designing a piece of work, or developing an application, our intelligent algorithms can provide valuable insights and suggestions for your project from a variety of perspectives.</p>
+    
+      <p class="center-text"><strong>Steps to use</strong><br>
+        - Enter your project type and description.<br>
+        - Select the aspects you want feedback on (e.g., strengths, suggestions for improvement, etc.).<br>
+        - Select the role of the feedback provider (e.g. client, teacher, peer, etc.).<br>
+        - Click the "Generate Feedback" button. The program will generate personalized feedback based on your input.</p>
+    
+      <p class="center-text">Let's review your project together, find out the strengths and weaknesses, and get inspiration for improvement!<br>
+        Click the "Start" button to begin your feedback journey.</p>  
+      <button id="letsGoBtn">Start</button>
+    </div>
+  </div>
+
+  <div class="container">
+    <h1>Feedback Assistant</h1>
+
+    <input id="projectType" type="text" placeholder="Enter Project Type" />
+
+    <input id="projectDescription" type="text" placeholder="Enter Project Description" />
+
+    <input list="aspects" id="aspectInput" placeholder="Choose or type an aspect">
+    <datalist id="aspects">
+      <option value="Highlight Strengths">
+      <option value="Suggest Improvements">
+      <option value="General Comments">
+      <option value="Innovative Ideas">
+    </datalist>
+
+    <input list="roles" id="roleInput" placeholder="Select Role for Feedback">
+    <datalist id="roles">
+      <option value="Customer">
+      <option value="Art Teacher">
+      <option value="General Audience">
+      <option value="Peer Reviewer">
+    </datalist>
+
+    <button id="send">Generate Feedback</button>
+    <p id="responseText"></p>
+  </div>
+  <script src="3_bg.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+  const introModal = document.getElementById('introModal');
+  introModal.style.display = 'block'; 
+
+  const letsGoBtn = document.getElementById('letsGoBtn');
+  letsGoBtn.addEventListener('click', function() {
+    introModal.style.display = 'none'; 
+  });
+});
+
+document.getElementById('send').addEventListener('click', async () => {
+  const container = document.querySelector('.container');
+  container.classList.add('limited-height');
+  const projectType = document.getElementById('projectType').value.trim();
+  const projectDescription = document.getElementById('projectDescription').value.trim();
+  const role = document.getElementById('roleInput').value.trim();
+  const aspect = document.getElementById('aspectInput').value.trim();
+
+  const responseText = document.getElementById('responseText'); 
+
+  if (!projectType || !projectDescription) {
+    responseText.textContent = 'Please fill in all fields.';
+    responseText.style.color = 'red';
+    return;
+  }
+
+  responseText.textContent = 'Generating...';
+  responseText.style.color = 'black';
+
+  try {
+    const response = await fetch('/api/feedback', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        projectDetails: {
+          description: projectDescription,
+          type: projectType,
+          aspects: aspect
+        },
+        role: role
+      })
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      responseText.textContent = data.feedback;
+      introModal.style.display = 'none'; 
+    } else {
+      throw new Error('Failed to fetch');
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    responseText.textContent = 'Error generating feedback.';
+    responseText.style.color = 'red';
+  }
+});
+  </script>
+</body>
+</html>
